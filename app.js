@@ -1,4 +1,5 @@
 import { LEVELS, WEEKS, TEACHERS, LISTENING, DAY_TYPES, getDay, videoSearchUrl, SEED_VOCAB } from "./curriculum.js";
+import { icon } from "./icons.js";
 import { MODELS, MODES, chat, generateVocab, handoffPrompt, openIn, PROJECT_INSTRUCTIONS } from "./tutor.js";
 
 // ---------- الحالة (محفوظة على الجهاز) ----------
@@ -77,7 +78,7 @@ function genderClass(de) {
 // ---------- التطبيقات: كل تطبيق له قايمة جانبية (side) وشاشة لكل قسم (view) ----------
 const APPS = {
   today: {
-    icon: "📅", name: "النهارده", color: "#f59e0b",
+    icon: "📅", name: "النهارده", color: "#d97706",
     badge: () => `يوم ${currentDay()}`,
     defaultSection: () => String(currentDay()),
     side() {
@@ -101,7 +102,7 @@ const APPS = {
     view: (s) => todayView(+s || currentDay()),
   },
   plan: {
-    icon: "🗺️", name: "الخطة", color: "#0891b2",
+    icon: "🗺️", name: "الخطة", color: "#0284c7",
     badge: () => `${Object.keys(S.done).length}/365`,
     defaultSection: () => getDay(currentDay()).level.id,
     side: () => [
@@ -156,30 +157,53 @@ const APPS = {
 };
 
 // ---------- الشاشة الرئيسية ----------
+// الشاشة الرئيسية متقسمة لمجموعات، والإعدادات في الهيدر
+const GROUPS = [
+  { t: "كل يوم", apps: ["today", "cards"] },
+  { t: "التعلّم", apps: ["plan", "tutor"] },
+];
+const appTitle = (id) => `<span class="title-ic" style="--c:${APPS[id].color}">${icon(id, 18)}</span>${APPS[id].name}`;
+
 function homeView() {
   const n = currentDay();
   const d = getDay(n);
   const doneCount = Object.keys(S.done).length;
   $view.innerHTML = `
-    <div class="hero">
-      <div><span class="pill" style="background:${d.level.color}">${d.level.id}</span> اليوم <b>${n}</b> من 365</div>
-      <div class="bar"><i style="width:${(doneCount / 365) * 100}%"></i></div>
-      <div class="muted">مهمة النهارده: ${d.type.icon} ${d.type.name} · ${esc(d.topic.t)}</div>
+    <div class="hero2">
+      <div class="hero-top">
+        <span class="chip">المستوى ${d.level.id}</span>
+        <span class="hero-week">الأسبوع ${d.week} من 52</span>
+      </div>
+      <div class="hero-main">
+        <div><div class="hero-num">${n}<small> / 365</small></div><div class="hero-sub">يوم في الخطة</div></div>
+        <div class="hero-trip">${icon("check", 22)}<div><b>${doneCount}</b> يوم<br><small>خلصتهم لحد دلوقتي</small></div></div>
+      </div>
+      <div class="hero-bar"><i style="width:${(doneCount / 365) * 100}%"></i></div>
+      <a class="hero-next" href="#/today/${n}">${icon("today", 18)}<span>مهمة النهارده: ${esc(d.type.name)} · ${esc(d.topic.t)}</span>${icon("chevron", 18)}</a>
     </div>
-    <div class="apps">${Object.entries(APPS).map(([id, a]) => `
-      <a class="app" href="#/${id}">
-        <span class="app-icon" style="background:${a.color}">${a.icon}</span>
-        <span class="app-name">${a.name}</span>
-        ${a.badge() ? `<span class="app-badge">${esc(a.badge())}</span>` : ""}
-      </a>`).join("")}
-    </div>`;
+    ${GROUPS.map((g) => `
+      <div class="group-title">${g.t}</div>
+      <div class="apps">${g.apps.map((id) => { const a = APPS[id]; return `
+        <a class="app" href="#/${id}" style="--c:${a.color}">
+          <span class="app-icon">${icon(id, 26)}</span>
+          <span class="app-name">${a.name}</span>
+          <span class="app-badge">${esc(a.badge()) || "&nbsp;"}</span>
+        </a>`; }).join("")}
+      </div>`).join("")}`;
+}
+
+// الإيموجي اللي في أول العناوين بتتشال عشان الشكل يبقى موحد مع الأيقونات
+const stripEmoji = (t) => String(t).replace(/^(?:[\p{Extended_Pictographic}\p{Regional_Indicator}←-⇿⬅-⬇]️?\s*)+/u, "");
+function cleanHeadings() {
+  $view.querySelectorAll("h2, h3").forEach((h) => { const n = h.firstChild; if (n?.nodeType === 3) n.textContent = stripEmoji(n.textContent); });
 }
 
 function renderSide(app, section) {
-  $side.innerHTML = `<div class="side-title">${app.icon} ${app.name}</div>` + app.side().map((it) => it.head
+  $side.style.setProperty("--c", app.color);
+  $side.innerHTML = `<div class="side-title">${appTitle(route.app)}</div>` + app.side().map((it) => it.head
     ? `<div class="side-head">${esc(it.head)}</div>`
     : `<a class="side-item ${it.id === section ? "on" : ""}" href="#/${route.app}/${it.id}">
-        ${it.color ? `<i class="dot" style="background:${it.color}"></i>` : ""}<span>${esc(it.label)}</span>${it.mark ? `<small>${esc(it.mark)}</small>` : ""}</a>`).join("");
+        ${it.color ? `<i class="dot" style="background:${it.color}"></i>` : ""}<span>${esc(stripEmoji(it.label))}</span>${it.mark ? `<small>${esc(it.mark)}</small>` : ""}</a>`).join("");
 }
 
 // ---------- شاشات النهارده والخطة ----------
@@ -567,9 +591,9 @@ function render() {
   const app = APPS[route.app];
   document.body.classList.toggle("in-app", !!app);
   document.body.classList.remove("side-open");
-  document.getElementById("title").textContent = app ? `${app.icon} ${app.name}` : "🇩🇪 Deutsch 365";
+  document.getElementById("title").innerHTML = app ? appTitle(route.app) : `<span class="title-ic" style="--c:#facc15">${icon("bubble", 18)}</span>Deutsch 365`;
   if (!app) { $side.innerHTML = ""; homeView(); }
-  else { app.view(route.section); renderSide(app, route.section); }
+  else { app.view(route.section); cleanHeadings(); renderSide(app, route.section); }
   window.scrollTo(0, 0);
 }
 function on(sel, fn) { const el = $view.querySelector(sel); if (el) el.onclick = fn; }
@@ -579,6 +603,11 @@ function bindCommon(dayNum) {
     addXP(5);
   });
 }
+document.getElementById("menu").innerHTML = icon("menu", 20);
+document.getElementById("home").innerHTML = icon("home", 20);
+document.getElementById("gear").innerHTML = icon("settings", 20);
+document.getElementById("streakBox").insertAdjacentHTML("afterbegin", icon("flame", 16));
+document.getElementById("xpBox").insertAdjacentHTML("afterbegin", icon("star", 16));
 document.getElementById("home").onclick = () => { location.hash = "#/"; };
 document.getElementById("menu").onclick = () => document.body.classList.toggle("side-open");
 document.getElementById("scrim").onclick = () => document.body.classList.remove("side-open");
