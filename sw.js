@@ -1,6 +1,6 @@
 // يخلي التطبيق يفتح من غير إنترنت (المدرس الذكي بس هو اللي محتاج نت)
-const CACHE = "deutsch365-v3";
-const FILES = ["./", "./index.html", "./styles.css", "./app.js", "./curriculum.js", "./tutor.js", "./icons.js", "./manifest.json", "./icon.svg"];
+const CACHE = "deutsch365-v4";
+const FILES = ["./", "./index.html", "./styles.css", "./app.js", "./curriculum.js", "./tutor.js", "./icons.js", "./manifest.json", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES))));
 self.addEventListener("activate", (e) => e.waitUntil(

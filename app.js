@@ -591,7 +591,7 @@ function render() {
   const app = APPS[route.app];
   document.body.classList.toggle("in-app", !!app);
   document.body.classList.remove("side-open");
-  document.getElementById("title").innerHTML = app ? appTitle(route.app) : `<span class="title-ic" style="--c:#facc15">${icon("bubble", 18)}</span>Deutsch 365`;
+  document.getElementById("title").innerHTML = app ? appTitle(route.app) : `<img class="brand-logo" src="icon.svg" alt="" />Deutsch 365`;
   if (!app) { $side.innerHTML = ""; homeView(); }
   else { app.view(route.section); cleanHeadings(); renderSide(app, route.section); }
   window.scrollTo(0, 0);
