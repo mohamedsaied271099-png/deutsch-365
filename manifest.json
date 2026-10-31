@@ -1,0 +1,11 @@
+{
+  "name": "Deutsch 365 — ألماني من الصفر لـ B2",
+  "short_name": "Deutsch 365",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
