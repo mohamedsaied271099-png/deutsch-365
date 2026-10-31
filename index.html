@@ -6,26 +6,27 @@
   <title>Deutsch 365</title>
   <meta name="theme-color" content="#111827" />
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="top">
-    <div class="brand">🇩🇪 Deutsch 365</div>
+    <div class="top-start">
+      <button id="menu" class="top-btn" aria-label="القايمة">☰</button>
+      <button id="home" class="top-btn" aria-label="الرئيسية">🏠</button>
+      <div class="brand" id="title">🇩🇪 Deutsch 365</div>
+    </div>
     <div class="stats">
       <span title="أيام متتالية">🔥 <b id="streak">0</b></span>
       <span title="نقاط الخبرة">⭐ <b id="xp">0</b></span>
     </div>
   </header>
 
-  <main id="view"></main>
-
-  <nav class="tabs">
-    <button data-tab="today" class="active">📅<span>النهارده</span></button>
-    <button data-tab="plan">🗺️<span>الخطة</span></button>
-    <button data-tab="cards">🧠<span>البطاقات</span></button>
-    <button data-tab="tutor">🤖<span>المدرس</span></button>
-    <button data-tab="settings">⚙️<span>الإعدادات</span></button>
-  </nav>
+  <div class="shell">
+    <aside id="side"></aside>
+    <main id="view"></main>
+  </div>
+  <div id="scrim"></div>
 
   <script type="module" src="app.js"></script>
 </body>
